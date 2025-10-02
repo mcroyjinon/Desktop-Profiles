@@ -2,11 +2,24 @@ import ctypes
 
 class DesktopProfile:
     
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.Name: str = name
     
-    def profile_bng(self, image_path: str):
+    def profile_bng(self, image_path: str) -> None:
         self.bng_path: str = image_path
 
-    def set_bng(self):
-        ctypes.windll.user32.SystemParametersInfoW(20, 0, self.bng_path, 0)
+    def profile_files(self, files_path: list[str]) -> None:
+        self.files_path: list[str] = files_path
+
+    def set_bng(self) -> None:
+        if self.bng_path:
+            ctypes.windll.user32.SystemParametersInfoW(20, 0, self.bng_path, 0)
+
+    def hide_files(self) -> None:
+        for file_path in self.files_path:
+            FILE_ATTRIBUTE_HIDDEN: any = 0x02
+            ret: any = ctypes.windll.kernel32.SetFileAttributesW(file_path, FILE_ATTRIBUTE_HIDDEN)
+            if ret:
+                print(f"{file_path} is now hidden.")
+            else:
+                print("Failed to hide the file.")
