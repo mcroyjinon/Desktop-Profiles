@@ -23,20 +23,29 @@ def set_profile(profile: DesktopProfile | None=None) -> None:
             print(f'[{name}] is already taken.')
             name = input(prompt_name)
             
-        path: str = input('What is the [Path] to the background image? Enter for\n').replace('"', '')
+        path: str = input('What is the [Path] to the background image? Enter for none\n').replace('"', '')
         while not os.path.exists(path):
+            if not path: break
             print('That is not a valid path')
-            path: str = input('What is the [Path] to the background image? Enter for\n').replace('"', '')
+            path: str = input('What is the [Path] to the background image? Enter for none\n').replace('"', '')
 
         files: list[str] = []
         files_bool: str = input('Would you like to add file paths to hide? Y/n\n').lower()
         if files_bool == 'y':
-            file: str = input('What file path do you want to add? \'stop\' to stop adding files\n').replace('"','')
-
+            file: str = ''
+            while file != 'stop':
+                file = input('What file path do you want to add? \'stop\' to stop adding files\n').replace('"','')
+                if os.path.exists(file):
+                    files.append(file)
+                elif file != 'stop':
+                    print('That file doesn\'nt exist')
 
 
         profiles[name] = DesktopProfile(name)
         profiles[name].profile_bng(path)
+        profiles[name].profile_files(files)
+
+        print
 
         return
     
@@ -56,7 +65,8 @@ def do_action(profile: DesktopProfile, action: str) -> None:
             profile.hide_files()
 
         case '4':
-            pass
+            profile.unhide_files()
+    print()
 
 
 if __name__ == '__main__':
@@ -64,6 +74,7 @@ if __name__ == '__main__':
 
 
     all: list[str] = ['2', '3']
+    choices = ['0', '1','2', '3', '4']
 
 
     while True:
@@ -73,7 +84,9 @@ if __name__ == '__main__':
         select: str = ''
         while select not in profiles_keys and select != 'New':
             select = input('What profile would you like to choose? ' + ' '.join(profiles_keys) + ' | Type \'New\' for new profile.\n')
-        
+
+        print()
+
         if select == 'New':
             set_profile()
 
@@ -83,7 +96,6 @@ if __name__ == '__main__':
         profile: DesktopProfile = profiles[select]
 
         choice: str = ''
-        choices = ['0', '1','2', '3', '4']
         if choice not in choices:
             choice = input('What would you like to do?\n\t1: All\n\t2: Set Background\n\t3: Hide Files\n\t4: Unhide Files\n\t0: Reconfigure\n')
 

@@ -23,3 +23,16 @@ class DesktopProfile:
                 print(f"{file_path} is now hidden.")
             else:
                 print("Failed to hide the file.")
+    
+    def unhide_files(self) -> None:
+        for file_path in self.files_path:
+
+            FILE_ATTRIBUTE_HIDDEN = 0x02
+            attrs = ctypes.windll.kernel32.GetFileAttributesW(file_path)
+            if attrs == -1:
+                print("Failed to get file attributes")
+                return
+            
+            new_attrs = attrs & ~FILE_ATTRIBUTE_HIDDEN
+            ctypes.windll.kernel32.SetFileAttributesW(file_path, new_attrs)
+            print(f"File is now unhidden: {file_path}")
