@@ -1,4 +1,5 @@
 import ctypes
+import pyvda
 
 class DesktopProfile:
     
@@ -6,6 +7,7 @@ class DesktopProfile:
         self.Name: str = name
         self.bng_path: str = ''
         self.files_path: list[str] = []
+        self.quick_run_methods: list[function] = [self.change_background]
 
     def __repr__(self) -> str:
         info: dict = {
@@ -29,10 +31,23 @@ class DesktopProfile:
     def profile_name(self, name: str) -> None:
         self.Name = name
 
+    def profile_quick_run_methods(self, methods: list) -> None:
+        self.quick_run_methods = methods
+
     # Functionality
+    def quick_run(self):
+        for func in self.quick_run_methods:
+            func()
+
     def change_background(self) -> None:
         if self.bng_path:
-            ctypes.windll.user32.SystemParametersInfoW(20, 0, self.bng_path, 0)
+            current_desktop: int = pyvda.VirtualDesktop.current().number
+
+            for i in range(1,len(pyvda.get_virtual_desktops())+1):
+                pyvda.VirtualDesktop(i).go()
+                ctypes.windll.user32.SystemParametersInfoW(20, 0, self.bng_path, 0x01 | 0x02)
+            
+            pyvda.VirtualDesktop(current_desktop).go()
 
     def hide_files(self) -> None:
         for file_path in self.files_path:

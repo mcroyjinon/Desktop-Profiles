@@ -1,6 +1,7 @@
 import atexit
 import os
 import json
+import pyvda
 
 from profiles import DesktopProfile
 
@@ -34,6 +35,8 @@ def set_profile(profile: DesktopProfile | None = None) -> None:
         while name in profiles_keys:
             print(f'[{name}] is already taken.')
             name = input(prompt_name)
+
+        profiles[name] = DesktopProfile(name)
             
         path: str = input('What is the [Path] to the background image? Enter for none\n').replace('"', '')
         while not os.path.exists(path):
@@ -52,19 +55,31 @@ def set_profile(profile: DesktopProfile | None = None) -> None:
                 elif file != 'stop':
                     print('That file doesn\'t exist')
 
+        
+        methods: list = []
 
-        profiles[name] = DesktopProfile(name)
+        auto_bng: str = input('Would you like to change background on activation? Y/n\n').lower()
+        if auto_bng == 'y':
+            methods.append(profiles[name].change_background)
+
+        auto_hide: str = input('Would you like to hide files on activation? Y/n\n').lower()
+        if auto_hide == 'y':
+            methods.append(profiles[name].hide_files)
+        else:
+            methods.append(profiles[name].unhide_files)    
+
         profiles[name].profile_bng(path)
         profiles[name].profile_files_path(files)
+        profiles[name].profile_quick_run_methods(methods)
 
-        print
+        print()
 
         return
     
-    choices = ['1', '2', '3', '4']
+    choices = ['1', '2', '3', '4', '5']
     choice: str = ''
     while choice != 'stop':
-        choice = input('What would you like to do:\n\t1. Rename Profile\n\t2. Change Background File\n\t3. Add File Paths to Hide\n\t4. Remove File Paths to Hide\n\tStop\n').lower()
+        choice = input('What would you like to do:\n\t1. Rename Profile\n\t2. Change Background File\n\t3. Add File Paths to Hide\n\t4. Remove File Paths to Hide\n\t5. Change Defaults\n\tStop\n').lower()
         
         match choice:
             
@@ -118,6 +133,20 @@ def set_profile(profile: DesktopProfile | None = None) -> None:
 
                     if int(file) in range(len(files)):
                         files.pop(int(file))
+
+            case '5':
+                auto_bng: str = input('Would you like to change background on activation? Y/n\n').lower()
+                if auto_bng == 'y':
+                    methods.append(profiles[name].change_background)
+
+                auto_hide: str = input('Would you like to hide files on activation? Y/n\n').lower()
+                if auto_hide == 'y':
+                    methods.append(profiles[name].hide_files)
+                else:
+                    methods.append(profiles[name].unhide_files)
+
+                profiles[name].profile_quick_run_methods(methods)
+
             
         print()
 
@@ -127,6 +156,9 @@ def do_action(profile: DesktopProfile, action: str) -> None:
         
         case '-1':
             profiles.pop(profile.Name)
+
+        case '1':
+            profile.quick_run()
 
         case '0':
             print()
@@ -147,10 +179,7 @@ if __name__ == '__main__':
     load()
     atexit.register(save)
 
-
-    all: list[str] = ['2', '3']
     choices = ['-1','0', '1','2', '3', '4']
-
 
     while True:
         profiles_keys: list[str] = list(profiles.keys())
@@ -174,8 +203,4 @@ if __name__ == '__main__':
         if choice not in choices:
             choice = input('What would you like to do?\n\t1: All\n\t2: Set Background\n\t3: Hide Files\n\t4: Unhide Files\n\t0: Reconfigure\n\t-1: Delete Profile\n')
 
-        if choice == '1':
-            for action in all:
-                do_action(profile, action)
-        else:
-            do_action(profile, choice)
+        do_action(profile, choice)
