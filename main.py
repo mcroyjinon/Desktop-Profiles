@@ -101,9 +101,7 @@ def set_profile(profile: DesktopProfile | None = None) -> None:
                         files.append(file)
                     elif file != 'stop':
                         print('That file doesn\'t exist')
-                    
-                    print(file == 'stop')
-                    
+                                        
                 profile.profile_files_path(files)
 
             case '4':
@@ -113,7 +111,7 @@ def set_profile(profile: DesktopProfile | None = None) -> None:
                     prompt = 'What would you like to remove? \'Stop\' to stop\n'
                     for i, file in enumerate(files):
                         prompt += '\t' + str(i) + '. ' + file + '\n'
-                    file = input(prompt)
+                    file = input(prompt).lower()
 
                     if file == 'stop':
                         break
