@@ -4,12 +4,22 @@ class DesktopProfile:
     
     def __init__(self, name: str) -> None:
         self.Name: str = name
+        self.bng_path: str = ''
+        self.files_path: list[str] = []
+
+    def __repr__(self) -> str:
+        info: dict = {
+            "Name": self.Name,
+            "bng_path": self.bng_path,
+            "files_path": self.files_path
+        }
+        return info
     
     def profile_bng(self, image_path: str) -> None:
-        self.bng_path: str = image_path
+        self.bng_path = image_path
 
     def profile_files(self, files_path: list[str]) -> None:
-        self.files_path: list[str] = files_path
+        self.files_path = files_path
 
     def set_bng(self) -> None:
         if self.bng_path:
@@ -28,7 +38,7 @@ class DesktopProfile:
         for file_path in self.files_path:
 
             FILE_ATTRIBUTE_HIDDEN = 0x02
-            attrs = ctypes.windll.kernel32.GetFileAttributesW(file_path)
+            attrs: any = ctypes.windll.kernel32.GetFileAttributesW(file_path)
             if attrs == -1:
                 print("Failed to get file attributes")
                 return

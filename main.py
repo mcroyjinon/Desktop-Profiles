@@ -1,5 +1,6 @@
 import atexit
 import os
+import json
 
 from profiles import DesktopProfile
 
@@ -8,12 +9,23 @@ profiles: dict[str:DesktopProfile] = {}
 
 
 def save() -> None:
-    print('exitting')
+    profiles_json = {}
+    for name, profile in profiles.items():
+        profiles_json[name] = profile.__repr__()
+    with open('saves.json', 'w') as file:
+        json.dump(profiles_json, file)
 
 
 def load() -> None:
-    pass
-
+    profiles_json: dict
+    with open('saves.json', 'r') as file:
+        profiles_json = json.load(file)
+    
+    for name, profile in profiles_json.items():
+        profiles[name] = DesktopProfile(name)
+        profiles[name].profile_bng(profile['bng_path'])
+        profiles[name].profile_files(profile['files_path'])
+        
 
 def set_profile(profile: DesktopProfile | None=None) -> None:
     if not profile:
@@ -55,6 +67,9 @@ def set_profile(profile: DesktopProfile | None=None) -> None:
 def do_action(profile: DesktopProfile, action: str) -> None:
     match action:
         
+        case '-1':
+            profiles.pop(profile.Name)
+
         case '0':
             pass
 
@@ -70,11 +85,12 @@ def do_action(profile: DesktopProfile, action: str) -> None:
 
 
 if __name__ == '__main__':
+    load()
     atexit.register(save)
 
 
     all: list[str] = ['2', '3']
-    choices = ['0', '1','2', '3', '4']
+    choices = ['-1','0', '1','2', '3', '4']
 
 
     while True:
@@ -83,7 +99,7 @@ if __name__ == '__main__':
 
         select: str = ''
         while select not in profiles_keys and select != 'New':
-            select = input('What profile would you like to choose? ' + ' '.join(profiles_keys) + ' | Type \'New\' for new profile.\n')
+            select = input('What profile would you like to choose? ' + ', '.join(profiles_keys) + ' | Type \'New\' for new profile.\n')
 
         print()
 
@@ -97,7 +113,7 @@ if __name__ == '__main__':
 
         choice: str = ''
         if choice not in choices:
-            choice = input('What would you like to do?\n\t1: All\n\t2: Set Background\n\t3: Hide Files\n\t4: Unhide Files\n\t0: Reconfigure\n')
+            choice = input('What would you like to do?\n\t1: All\n\t2: Set Background\n\t3: Hide Files\n\t4: Unhide Files\n\t0: Reconfigure\n\t-1: Delete Profile\n')
 
         if choice == '1':
             for action in all:
