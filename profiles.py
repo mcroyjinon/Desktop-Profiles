@@ -15,13 +15,22 @@ class DesktopProfile:
         }
         return info
     
+    # Getter Methods
+    def get_files_path(self) -> list[str]:
+        return self.files_path
+    
+    # Setter Methods
     def profile_bng(self, image_path: str) -> None:
         self.bng_path = image_path
 
-    def profile_files(self, files_path: list[str]) -> None:
+    def profile_files_path(self, files_path: list[str]) -> None:
         self.files_path = files_path
 
-    def set_bng(self) -> None:
+    def profile_name(self, name: str) -> None:
+        self.Name = name
+
+    # Functionality
+    def change_background(self) -> None:
         if self.bng_path:
             ctypes.windll.user32.SystemParametersInfoW(20, 0, self.bng_path, 0)
 

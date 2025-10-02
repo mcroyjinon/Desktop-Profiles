@@ -24,10 +24,10 @@ def load() -> None:
     for name, profile in profiles_json.items():
         profiles[name] = DesktopProfile(name)
         profiles[name].profile_bng(profile['bng_path'])
-        profiles[name].profile_files(profile['files_path'])
+        profiles[name].profile_files_path(profile['files_path'])
         
 
-def set_profile(profile: DesktopProfile | None=None) -> None:
+def set_profile(profile: DesktopProfile | None = None) -> None:
     if not profile:
         prompt_name: str = 'What is the [Name] of the [Profile]:\n'
         name: str = input(prompt_name)
@@ -50,18 +50,78 @@ def set_profile(profile: DesktopProfile | None=None) -> None:
                 if os.path.exists(file):
                     files.append(file)
                 elif file != 'stop':
-                    print('That file doesn\'nt exist')
+                    print('That file doesn\'t exist')
 
 
         profiles[name] = DesktopProfile(name)
         profiles[name].profile_bng(path)
-        profiles[name].profile_files(files)
+        profiles[name].profile_files_path(files)
 
         print
 
         return
     
-    pass
+    choices = ['1', '2', '3', '4']
+    choice: str = ''
+    while choice != 'stop':
+        choice = input('What would you like to do:\n\t1. Rename Profile\n\t2. Change Background File\n\t3. Add File Paths to Hide\n\t4. Remove File Paths to Hide\n\tStop\n').lower()
+        
+        match choice:
+            
+            case '1':
+                prompt_name: str = 'What is the [Name] of the [Profile]:\n'
+                name: str = input(prompt_name)
+                while name in profiles_keys:
+                    print(f'[{name}] is already taken.')
+                    name = input(prompt_name)
+                
+                profiles.pop(profile.Name)
+                profile.profile_name(name)
+                profiles[name] = profile
+
+            case '2':
+                path: str = input('What is the [Path] to the background image? Enter for none\n').replace('"', '')
+                while not os.path.exists(path):
+                    if not path: break
+                    print('That is not a valid path')
+                    path: str = input('What is the [Path] to the background image? Enter for none\n').replace('"', '')
+                
+                profile.profile_bng(path)
+
+            case '3':
+                files: list[str] = profile.get_files_path()
+                file: str = ''
+                while file != 'stop':
+                    file = input('What file path do you want to add? \'stop\' to stop adding files\n').replace('"','').lower()
+                    
+                    if file == 'stop':
+                        break
+
+                    if os.path.exists(file):
+                        files.append(file)
+                    elif file != 'stop':
+                        print('That file doesn\'t exist')
+                    
+                    print(file == 'stop')
+                    
+                profile.profile_files_path(files)
+
+            case '4':
+                file: str = ''
+                while file != 'stop':
+                    files: list[str] = profile.get_files_path()
+                    prompt = 'What would you like to remove? \'Stop\' to stop\n'
+                    for i, file in enumerate(files):
+                        prompt += '\t' + str(i) + '. ' + file + '\n'
+                    file = input(prompt)
+
+                    if file == 'stop':
+                        break
+
+                    if int(file) in range(len(files)):
+                        files.pop(int(file))
+            
+        print()
 
 
 def do_action(profile: DesktopProfile, action: str) -> None:
@@ -71,10 +131,11 @@ def do_action(profile: DesktopProfile, action: str) -> None:
             profiles.pop(profile.Name)
 
         case '0':
-            pass
+            print()
+            set_profile(profile)
 
         case '2':
-            profile.set_bng()
+            profile.change_background()
 
         case '3':
             profile.hide_files()
