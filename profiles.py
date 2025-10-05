@@ -1,5 +1,6 @@
 import ctypes
 import pyvda
+import os
 
 class DesktopProfile:
     
@@ -23,10 +24,15 @@ class DesktopProfile:
     
     # Setter Methods
     def profile_bng(self, image_path: str) -> None:
+        print(image_path)
+        if not os.path.exists(image_path): return
+        if not image_path.endswith(('.png', '.jpeg', '.bmp', '.tiff', '.svg', '.jpg')): return
         self.bng_path = image_path
 
     def profile_files_path(self, files_path: list[str]) -> None:
-        self.files_path = files_path
+        valid_paths: list[str] = []
+        for path in files_path: valid_paths.append(path) if os.path.exists(path) else print('no')
+        self.files_path = valid_paths
 
     def profile_name(self, name: str) -> None:
         self.Name = name
