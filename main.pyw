@@ -75,7 +75,10 @@ class NewProfileApp(CTk.CTk):
         profile.profile_bng(self.information.get('Wallpaper'))
         profile.profile_files_path(file_paths)
 
-        profile.profile_quick_run_methods([profile.change_background, profile.hide_files])
+        methods: list = []
+        if self.check_wallpaper.get(): methods.append(profile.change_background)
+        methods.append(profile.unhide_files) if self.var_files.get() else methods.append(profile.hide_files)
+        profile.profile_quick_run_methods(methods)
 
         self.app.add_profile(profile)
 
@@ -113,12 +116,12 @@ class NewProfileApp(CTk.CTk):
     def __init__(self, app: CTk.CTk) -> None:
         super().__init__()
 
-        self.geometry('500x350')
+        self.geometry('500x375')
         self.resizable(True, False)
         self.title('New Profile')
         self.grid_columnconfigure((0),weight=1)
-        self.grid_columnconfigure((1,2,3),weight=2)
-        self.grid_rowconfigure((10),weight=5)
+        self.grid_columnconfigure((1,2),weight=2)
+        self.grid_rowconfigure((6),weight=5)
 
         self.protocol('WM_DELETE_WINDOW',lambda: self.withdraw())
 
@@ -139,7 +142,7 @@ class NewProfileApp(CTk.CTk):
             placeholder_text='Enter Name Here',
             textvariable=self.var_name
         )
-        entry.grid(row=0, column=1, pady=2, padx=5, sticky='ew', columnspan=3)
+        entry.grid(row=0, column=1, pady=2, padx=5, sticky='ew', columnspan=2)
 
         #Wallpaper Entry
         label_wallpaper: CTk.CTkLabel = CTk.CTkLabel(
@@ -162,7 +165,7 @@ class NewProfileApp(CTk.CTk):
             height=40,
             state='disabled'
         )
-        self.stores['Wallpaper'].grid(row=1, column=2, pady=2, columnspan=2, sticky='ew')
+        self.stores['Wallpaper'].grid(row=1, column=2, pady=2, sticky='ew')
 
         #Hidden Files Entry
         label_files: CTk.CTkLabel = CTk.CTkLabel(
@@ -199,7 +202,7 @@ class NewProfileApp(CTk.CTk):
             height=75,
             state='disabled'
         )
-        self.stores['Files'].grid(row=2, column=2, pady=2, columnspan=2, sticky='ew')
+        self.stores['Files'].grid(row=2, column=2, pady=2, sticky='ew')
 
         #Hidden Directories Entry
         label_directories: CTk.CTkLabel = CTk.CTkLabel(
@@ -236,7 +239,54 @@ class NewProfileApp(CTk.CTk):
             height=75,
             state='disabled'
         )
-        self.stores['Directory'].grid(row=3, column=2, pady=2, padx=2, sticky='ew', columnspan=2)
+        self.stores['Directory'].grid(row=3, column=2, pady=2, padx=2, sticky='ew')
+
+        #Quick Activate Selectors
+        label_quick: CTk.CTkLabel = CTk.CTkLabel(
+            master=self,
+            text='Quick Activate'
+        )
+        label_quick.grid(row=4, column=0, pady=10, padx=5, sticky='e')
+
+        frame_quick: CTk.CTkFrame = CTk.CTkFrame(
+            master=self,
+            fg_color='gray92'
+        )
+        frame_quick.grid_rowconfigure((0,1),weight=1)
+        frame_quick.grid(row=4, column=1, pady=2, padx=5, sticky='ew', columnspan=2)
+
+        self.check_wallpaper: CTk.CTkCheckBox = CTk.CTkCheckBox(
+            master=frame_quick,
+            text='Change Wallpaper',
+            checkbox_height=20,
+            checkbox_width=20
+        )
+        self.check_wallpaper.grid(row=0, column=0, sticky='w')
+
+        self.var_files: CTk.IntVar = CTk.IntVar(value=0)
+        radio_hide: CTk.CTkRadioButton = CTk.CTkRadioButton(
+            master=frame_quick,
+            text='Hide Files',
+            variable=self.var_files,
+            value=0,
+            radiobutton_height=20,
+            radiobutton_width=20,
+            font=('CTkFont',13),
+            border_width_checked=4
+        )
+        radio_hide.grid(row=1,column=0,sticky='w', pady=8)
+
+        radio_unhide: CTk.CTkRadioButton = CTk.CTkRadioButton(
+            master=frame_quick,
+            text='Unhide Files',
+            variable=self.var_files,
+            value=1,
+            radiobutton_height=20,
+            radiobutton_width=20,
+            font=('CTkFont',13),
+            border_width_checked=4
+        )
+        radio_unhide.grid(row=1,column=1,sticky='w', pady=8)
 
         #Create Profile Button
         self.button_create: CTk.CTkButton = CTk.CTkButton(
@@ -244,7 +294,7 @@ class NewProfileApp(CTk.CTk):
             text='Create Profile',
             command=self.create_profile
         )
-        self.button_create.grid(row=10, column=0, sticky='ew', columnspan=4, padx=20)
+        self.button_create.grid(row=6, column=0, sticky='ew', columnspan=3, padx=20)
 
 
 class EditProfileApp(NewProfileApp):
@@ -280,6 +330,13 @@ class EditProfileApp(NewProfileApp):
         self.stores['Directory'].insert('0.0',self.information['Directory'])
         self.stores['Directory'].configure(state='disabled')
 
+        methods = app.current_profile.get_quick_methods()
+        if app.current_profile.change_background in methods:
+            self.check_wallpaper.select()
+        
+        if app.current_profile.unhide_files in methods:
+            self.var_files.set(1)
+
         self.button_create.configure(command=self.update_profile, text='Update Profile: '+app.current_profile.Name)
 
         self.mainloop()
@@ -290,6 +347,11 @@ class EditProfileApp(NewProfileApp):
 
         self.app.current_profile.profile_bng(self.information.get('Wallpaper'))
         self.app.current_profile.profile_files_path(file_paths)
+
+        methods: list = []
+        if self.check_wallpaper.get(): methods.append(self.app.current_profile.change_background)
+        methods.append(self.app.current_profile.unhide_files) if self.var_files.get() else methods.append(self.app.current_profile.hide_files)
+        self.app.current_profile.profile_quick_run_methods(methods)
 
         self.withdraw()
 
