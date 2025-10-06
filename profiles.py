@@ -22,6 +22,9 @@ class DesktopProfile:
     def get_files_path(self) -> list[str]:
         return self.files_path
     
+    def get_bng_path(self) -> str:
+        return self.bng_path
+    
     # Setter Methods
     def profile_bng(self, image_path: str) -> None:
         print(image_path)

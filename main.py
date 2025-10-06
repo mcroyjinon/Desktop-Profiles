@@ -204,14 +204,59 @@ class NewProfileApp(CTk.CTk):
         self.stores['Directory'].grid(row=3, column=3, pady=2, padx=2, sticky='ew')
 
         #Create Profile Button
-        button_create: CTk.CTkButton = CTk.CTkButton(
+        self.button_create: CTk.CTkButton = CTk.CTkButton(
             master=self,
             text='Create Profile',
             command=self.create_profile
         )
-        button_create.grid(row=10, column=0, sticky='ew', columnspan=4, padx=20)
+        self.button_create.grid(row=10, column=0, sticky='ew', columnspan=4, padx=20)
+
+
+class EditProfileApp(NewProfileApp):
+
+    def __init__(self, app):
+        super().__init__(app)
+
+        self.title('Reconfigure Profile: '+app.current_profile.Name)
+
+        self.app = app
+
+        self.var_name.set(app.current_profile.Name)
+        self.information['Wallpaper'] = app.current_profile.get_bng_path()
+        
+        for file_path in app.current_profile.get_files_path():
+            if os.path.isfile(file_path):
+                self.information['Files'].append(file_path)
+            elif os.path.isdir(file_path):
+                self.information['Directory'].append(file_path)
+        
+        self.stores['Wallpaper'].configure(state='normal')
+        self.stores['Wallpaper'].delete('0.0','end')
+        self.stores['Wallpaper'].insert('0.0',self.information['Wallpaper'])
+        self.stores['Wallpaper'].configure(state='disabled')
+
+        self.stores['Files'].configure(state='normal')
+        self.stores['Files'].delete('0.0','end')
+        self.stores['Files'].insert('0.0',self.information['Files'])
+        self.stores['Files'].configure(state='disabled')
+
+        self.stores['Directory'].configure(state='normal')
+        self.stores['Directory'].delete('0.0','end')
+        self.stores['Directory'].insert('0.0',self.information['Directory'])
+        self.stores['Directory'].configure(state='disabled')
+
+        self.button_create.configure(command=self.update_profile, text='Update Profile: '+app.current_profile.Name)
 
         self.mainloop()
+
+    
+    def update_profile(self):
+        file_paths = self.information.get('Files') + self.information.get('Directory')
+
+        self.app.current_profile.profile_bng(self.information.get('Wallpaper'))
+        self.app.current_profile.profile_files_path(file_paths)
+
+        self.withdraw()
 
 
 class DesktopApp(CTk.CTk):
@@ -326,7 +371,8 @@ class DesktopApp(CTk.CTk):
 
         self.button_reconfigure: CTk.CTkButton = CTk.CTkButton(
             self.frame_app,
-            text='Reconfigure'
+            text='Reconfigure',
+            command=lambda: EditProfileApp(self) if self.current_profile else print()
         )
         self.button_reconfigure.grid(row=1, column=1, sticky='ns', pady=10)
 
@@ -337,7 +383,7 @@ class DesktopApp(CTk.CTk):
         if option == 'New':
             self.options_profiles.set('None')
 
-            NewProfileApp(self)
+            NewProfileApp(self).mainloop()
         else:
             self.current_profile = self.desktop_profiles[option]
             print(self.current_profile.__repr__())
