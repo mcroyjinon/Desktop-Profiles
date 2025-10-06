@@ -25,6 +25,9 @@ class DesktopProfile:
     def get_bng_path(self) -> str:
         return self.bng_path
     
+    def get_quick_methods(self) -> list:
+        return self.quick_run_methods
+    
     # Setter Methods
     def profile_bng(self, image_path: str) -> None:
         print(image_path)
