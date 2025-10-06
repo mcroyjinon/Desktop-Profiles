@@ -431,14 +431,14 @@ class DesktopApp(CTk.CTk):
             text='Set Background',
             command=lambda: self.current_profile.change_background() if self.current_profile else print()
         )
-        self.button_background.grid(row=0, column=0, sticky='ns', pady=10)
+        self.button_background.grid(row=0, column=1, sticky='ns', pady=10)
 
         self.button_quick: CTk.CTkButton = CTk.CTkButton(
             self.frame_app,
             text='Quick Activate',
             command=lambda: self.current_profile.quick_run() if self.current_profile else print()
         )
-        self.button_quick.grid(row=0, column=1, sticky='ns', pady=10)
+        self.button_quick.grid(row=0, column=0, sticky='ns', pady=10)
 
         self.frame_hide: CTk.CTkFrame = CTk.CTkFrame(
             master=self.frame_app,
