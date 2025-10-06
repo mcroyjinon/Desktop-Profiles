@@ -9,18 +9,18 @@ import json
 class RemoveDir(CTk.CTk):
 
     def remove_dir(self, index: int):
-        self.app.information['Directory'].pop(index)
-        self.app.stores['Directory'].configure(state='normal')
-        self.app.stores['Directory'].delete('0.0','end')
-        self.app.stores['Directory'].insert('0.0', ', '.join(self.app.information['Directory']))
-        self.app.stores['Directory'].configure(state='disabled')
+        self.app.information[self.list].pop(index)
+        self.app.stores[self.list].configure(state='normal')
+        self.app.stores[self.list].delete('0.0','end')
+        self.app.stores[self.list].insert('0.0', ', '.join(self.app.information[self.list]))
+        self.app.stores[self.list].configure(state='disabled')
         self.create_removal()
 
     def create_removal(self):
         for widget in self.winfo_children():
             widget.destroy()
 
-        for i, dir in enumerate(self.app.information['Directory']):
+        for i, dir in enumerate(self.app.information[self.list]):
             label_name: CTk.CTkLabel = CTk.CTkLabel(
                 master=self,
                 text=dir
@@ -33,24 +33,37 @@ class RemoveDir(CTk.CTk):
                 command=lambda: self.remove_dir(i)
             )
             button_remove.grid(row=i, column=1)
+            
 
     def __init__(self, app: CTk.CTk):
         super().__init__()
 
         self.geometry('300x300')
         self.resizable(False, False)
-        self.title('Remove Directory')
+        self.title('Remove Directory(s)')
 
         self.grid_columnconfigure((0),weight=3)
         self.grid_columnconfigure((1),weight=1)
+
+        self.list = 'Directory'
 
         self.protocol('WM_DELETE_WINDOW', lambda: self.withdraw())
 
         self.app: CTk.CTk = app
 
         self.create_removal()
+            
 
-        self.mainloop()
+class RemoveFiles(RemoveDir):
+
+    def __init__(self, app: CTk.CTk):        
+        super().__init__(app)
+
+        self.list = 'Files'
+        self.create_removal()
+
+        self.title('Remove File(s)')
+
 
 class NewProfileApp(CTk.CTk):
 
@@ -81,7 +94,8 @@ class NewProfileApp(CTk.CTk):
                 title='Select File',
                 filetypes=(("All files", "*.*"),("All files", "*.*"))
             )
-            self.information[info_store] = list(files)
+            self.information[info_store]+=list(files)
+            files = ', '.join(self.information[info_store])
         elif selector == 'directories':
             files = filedialog.askdirectory(
                 title='Select Directory(s)',
@@ -176,7 +190,7 @@ class NewProfileApp(CTk.CTk):
         button_files_unhide: CTk.CTkButton = CTk.CTkButton(
             master=frame_files,
             text='Remove File(s)',
-            command=lambda: self.file_selector('files', 'Files')
+            command=lambda: RemoveFiles(self).mainloop()
         )
         button_files_unhide.pack(side='top', expand=True, fill='both', pady=4)
 
@@ -206,7 +220,7 @@ class NewProfileApp(CTk.CTk):
         button_directories_remove: CTk.CTkButton = CTk.CTkButton(
             master=self,
             text='Remove Dir(s)',
-            command=lambda: RemoveDir(self)
+            command=lambda: RemoveDir(self).mainloop()
         )
         button_directories_remove.grid(row=3, column=2, sticky='ew', padx=2)
 
