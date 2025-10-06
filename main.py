@@ -33,7 +33,7 @@ class RemoveDir(CTk.CTk):
                 command=lambda: self.remove_dir(i)
             )
             button_remove.grid(row=i, column=1)
-            
+
 
     def __init__(self, app: CTk.CTk):
         super().__init__()
@@ -43,7 +43,7 @@ class RemoveDir(CTk.CTk):
         self.title('Remove Directory(s)')
 
         self.grid_columnconfigure((0),weight=3)
-        self.grid_columnconfigure((1),weight=1)
+        self.grid_columnconfigure((1),weight=1, minsize=100)
 
         self.list = 'Directory'
 
