@@ -158,12 +158,27 @@ class NewProfileApp(CTk.CTk):
         label_files.grid(row=2, column=0, pady=5, padx=5, sticky='e')
 
         self.information['Files'] = []
-        button_files: CTk.CTkButton = CTk.CTkButton(
+
+        frame_files: CTk.CTkFrame = CTk.CTkFrame(
             master=self,
-            text='Choose File(s)',
+            fg_color='gray92'
+        )
+        frame_files.grid_rowconfigure((0,1), weight=1)
+        frame_files.grid(row=2, column=1, pady=2, padx=5, sticky='ewns')
+
+        button_files_hide: CTk.CTkButton = CTk.CTkButton(
+            master=frame_files,
+            text='Add File(s)',
             command=lambda: self.file_selector('files', 'Files')
         )
-        button_files.grid(row=2, column=1, pady=2, padx=5, sticky='ew')
+        button_files_hide.pack(side='top', expand=True, fill='both', pady=4)
+
+        button_files_unhide: CTk.CTkButton = CTk.CTkButton(
+            master=frame_files,
+            text='Remove File(s)',
+            command=lambda: self.file_selector('files', 'Files')
+        )
+        button_files_unhide.pack(side='top', expand=True, fill='both', pady=4)
 
         self.stores['Files'] = CTk.CTkTextbox(
             master=self,
