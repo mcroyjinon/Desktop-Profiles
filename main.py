@@ -177,7 +177,6 @@ class NewProfileApp(CTk.CTk):
             master=self,
             fg_color='gray92'
         )
-        frame_files.grid_rowconfigure((0,1), weight=1)
         frame_files.grid(row=2, column=1, pady=2, padx=5, sticky='ewns')
 
         button_files_hide: CTk.CTkButton = CTk.CTkButton(
@@ -210,19 +209,26 @@ class NewProfileApp(CTk.CTk):
         label_directories.grid(row=3, column=0, pady=5, padx=5, sticky='e')
 
         self.information['Directory'] = []
-        button_directories: CTk.CTkButton = CTk.CTkButton(
+
+        frame_directories_buttons: CTk.CTkFrame = CTk.CTkFrame(
             master=self,
-            text='Add Dir',
+            fg_color='gray92'
+        )
+        frame_directories_buttons.grid(row=3, column=1, pady=2, padx=5, sticky='ewns')
+
+        button_directories: CTk.CTkButton = CTk.CTkButton(
+            master=frame_directories_buttons,
+            text='Add Directory',
             command=lambda: self.file_selector('directories', 'Directory')
         )
-        button_directories.grid(row=3, column=1, pady=2, padx=5, sticky='ew')
+        button_directories.pack(side='top', expand=True, fill='both', pady=4)
 
         button_directories_remove: CTk.CTkButton = CTk.CTkButton(
-            master=self,
-            text='Remove Dir(s)',
+            master=frame_directories_buttons,
+            text='Remove Directory(s)',
             command=lambda: RemoveDir(self).mainloop()
         )
-        button_directories_remove.grid(row=3, column=2, sticky='ew', padx=2)
+        button_directories_remove.pack(side='top', expand=True, fill='both', pady=4)
 
         self.stores['Directory'] = CTk.CTkTextbox(
             master=self,
@@ -230,7 +236,7 @@ class NewProfileApp(CTk.CTk):
             height=75,
             state='disabled'
         )
-        self.stores['Directory'].grid(row=3, column=3, pady=2, padx=2, sticky='ew')
+        self.stores['Directory'].grid(row=3, column=2, pady=2, padx=2, sticky='ew', columnspan=2)
 
         #Create Profile Button
         self.button_create: CTk.CTkButton = CTk.CTkButton(
